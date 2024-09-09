@@ -18,7 +18,7 @@ libc = "0.2.69"
 # framebuffer
 memmap2 = { version = "0.5.2", optional = true }
 ioctl-gen = { version = "0.1.1", optional = true }
-zstd = { version = "0.9.0", optional = true }
+flate2 = { version = "1.0", optional = true }
 
 # framebuffer-drawing
 rusttype = { version = "0.9.2", optional = true }
@@ -40,12 +40,12 @@ hlua = { git = "https://github.com/fenollp/hlua.git", rev = "f327e79", optional 
 stopwatch = { version = "0.0.7", optional = true }
 
 [features]
-default = ["scan", "framebuffer-types", "framebuffer", "framebuffer-storage", "framebuffer-drawing", "image", "framebuffer-text-drawing", "input-types", "input", "battery", "appctx", "hlua"]
+default = ["scan", "framebuffer-types", "framebuffer", "framebuffer-storage", "framebuffer-drawing", "image", "framebuffer-text-drawing", "input-types", "input", "battery", "appctx"]
 
 scan = ["evdev"]
 framebuffer-types = ["ioctl-gen"]
 framebuffer = ["scan", "framebuffer-types", "memmap2"]
-framebuffer-storage = ["framebuffer", "zstd"]
+framebuffer-storage = ["framebuffer", "flate2"]
 framebuffer-drawing = ["framebuffer", "line_drawing"]
 framebuffer-text-drawing = ["framebuffer-drawing", "rusttype"]
 input-types = []
@@ -56,7 +56,7 @@ appctx = ["framebuffer-text-drawing", "input", "aabb-quadtree"]
 enable-runtime-benchmarking = ["stopwatch"]
 
 [profile.release]
-debug = true
+strip = true
 
 [[example]]
 name = "spy"

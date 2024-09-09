@@ -1,4 +1,6 @@
+use std::io::{Read, Write};
 use std::sync::Arc;
+use flate2::{Compression, write::ZlibEncoder, read::GzDecoder};
 
 #[derive(Clone)]
 #[allow(dead_code)]
@@ -26,8 +28,10 @@ impl CompressedCanvasState {
     /// Creates a CompressedCanvasState from the output of FramebufferIO::dump_region(..)
     /// Consumes the RgbaImage that's provided to it.
     pub fn new(img: &[u8], height: u32, width: u32) -> CompressedCanvasState {
+        let mut enc = ZlibEncoder::new(Vec::new(), Compression::default());
+        enc.write_all(img).unwrap();
         CompressedCanvasState {
-            data: zstd::encode_all(img, 0).unwrap().into(),
+            data: enc.finish().unwrap().into(),
             height,
             width,
         }
@@ -36,7 +40,10 @@ impl CompressedCanvasState {
     /// Returns an ImageBuffer which can be used to restore the contents of a screen
     /// region using the FramebufferIO::restore_region(..)
     pub fn decompress(&self) -> Vec<u8> {
-        zstd::decode_all(&*self.data).unwrap()
+        let mut vec = Vec::new();
+        let mut dec = GzDecoder::new(&*self.data);
+        dec.read_to_end(&mut vec).unwrap();
+        vec
     }
 }
 
